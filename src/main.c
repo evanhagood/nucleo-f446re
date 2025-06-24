@@ -8,37 +8,27 @@
  * @date 6/17/2025
 */
 #include <stdint.h>
-#define GPIOA_BASE      0x40020000
-#define GPIOA_MODER     (*(volatile uint32_t*)(GPIOA_BASE + 0x0)) // GPIO port mode register
-#define GPIOA_ODR       (*(volatile uint32_t*)(GPIOA_BASE + 0x14)) // GPIO port output data register
-#define RCC_BASE        0x40023800
-#define RCC_AHB1ENR     (*(volatile uint32_t*)(RCC_BASE + 0x30))
+#include "memory_map.h"
+#include "gpio.h"
+#include "rcc.h"
 
-/**********************************************************
- * void delay(void)
- * 
- * busy waits the MCU for about a second
- * 
- * @param void
- * @return void
- */
-static void delay(void) {
-    for (volatile int i = 0; i < 100000; i++);
+volatile int delay()
+{
+    for (volatile int i = 0; i < 1000000; i++)
+    {
+        __asm__ volatile("nop");
+    }
+    return 0;
 }
 
 int main(void) {
-    // enable RCC clock for GPIO
-    RCC_AHB1ENR |= (1 << 0);
-    // set GPIOA pin 5 to general output
-    GPIOA_MODER &= ~(0x3 << (5 * 2)); // clear pin 5
-    GPIOA_MODER |= (0x1 << (5 * 2)); // set pin 5 to 0b01
+    // set GPIOA pin 5 to general output (this function enables RCC)
+    gpio_init(GPIO_PORT_A, 5, GPIO_MODE_OUTPUT, GPIO_NO_PULL, GPIO_SPEED_LOW);
 
     while(1) {
-        // turn on PA5
-        GPIOA_ODR |= (1 << 5);
+        gpio_write(GPIO_PORT_A, 5, 0);
         delay();
-        // turn off PA5
-        GPIOA_ODR &= ~(1 << 5);
+        gpio_write(GPIO_PORT_A, 5, 1);
         delay();
     }
 }

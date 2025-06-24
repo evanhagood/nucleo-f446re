@@ -10,6 +10,7 @@
 #ifndef GPIO_H
 #define GPIO_H
 #include <stdint.h>
+#include "memory_map.h"
 
 typedef enum
 {
@@ -40,20 +41,22 @@ typedef enum
     GPIO_SPEED_VERYHIGH = 0x03
 } gpio_speed_t;
 
+void gpio_init(GPIO_Port port, uint8_t pin, gpio_mode_t mode, gpio_pull_t pull, gpio_speed_t speed);
+
 /**
  * @brief Sets a GPIO pin to high or low.
  */
-void gpio_write(volatile uint32_t *port_base, uint8_t pin, uint8_t value);
+void gpio_write(GPIO_Port port, uint8_t pin, uint8_t value);
 
 /**
  * @brief Toggles a GPIO pin.
  */
-void gpio_toggle(volatile uint32_t *port_base, uint8_t pin);
+void gpio_toggle(GPIO_Port port, uint8_t pin);
 
 /**
  * @brief Reads the state of a GPIO pin.
  * @retval 0 if low, non-zero if high
  */
-uint8_t gpio_read(volatile uint32_t *port_base, uint8_t pin);
+uint8_t gpio_read(GPIO_Port port, uint8_t pin);
 
 #endif // GPIO_H
